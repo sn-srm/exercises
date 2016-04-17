@@ -18,6 +18,23 @@ loop do #main loop
 		end
 	end
 
+	def integer?(number)
+		 /^\d+$/.match(number)
+  end	
+ 
+ 	def operation_to_message(op)
+		case op
+		when '1'
+			'Adding'
+		when '2'
+			'Subtracting'
+		when '3'
+			'Multiplying'
+		when '4'
+			'Dividing'
+		end		
+		
+	end
 	
 	Kernel.puts("Welcome to Calculator!")
 	name = ''
@@ -33,26 +50,12 @@ loop do #main loop
 
 	end
 
-	def operation_to_message(op)
-		case op
-		when '1'
-			'Adding'
-		when '2'
-			'Subtracting'
-		when '3'
-			'Multiplying'
-		when '4'
-			'Dividing'
-		end		
-		
-	end	
-
 	number1 = ''
 	loop do
 		prompt("What's the first number?")
 		number1 = Kernel.gets().chomp()
 
-		if valid_number?(number1)
+		if integer?(number1)
 			break
 		else
 			prompt("Hmm.. that doesn't look like a valid number")
@@ -64,7 +67,7 @@ loop do #main loop
 		prompt("whats the second number?")
 		number2 = Kernel.gets().chomp()
 
-		if valid_number?(number2)
+		if integer?(number2)
 			break
 		else
 			prompt("Hmm.. that doesn't look like a valid number")
