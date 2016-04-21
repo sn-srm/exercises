@@ -58,11 +58,9 @@ loop do
   # convert number of months and amount to proper formats
   months = duration.to_i * 12
   amount = amount.to_f
-
-  # Formula to be used - P = L[c(1 + c)n]/[(1 + c)n - 1]
+	# Formula to be used - P = L[c(1 + c)n]/[(1 + c)n - 1]
   # L dollars, n months, montly interest rate of c
-
-  prompt "yearly_rate: #{yearly_rate}"
+	prompt "yearly_rate: #{yearly_rate}"
   prompt "monthly_rate: #{monthly_rate}"
   prompt "months: #{months}"
   prompt "amount: #{amount}"
