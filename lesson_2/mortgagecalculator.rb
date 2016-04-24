@@ -1,73 +1,74 @@
-# get- ln amt, apr, ln duration
+# Mortgage Calculator
+# Formula to be used - P = L[c(1 + c)n]/[(1 + c)n - 1]
+# L dollars, n months, montly interest rate of c
 
 def prompt(message)
-  puts(">>>>#{message}")
+  puts("-->>>#{message}")
 end
 
 # validate amount
-def valid_amount?(loan)
-  loan.to_f > 0 && (loan.empty? == false)
+def invalid_amount?(loan)
+  loan.to_f <= 0 || loan.empty?
 end
 
 # validate apr
-def valid_apr?(apr)
-  apr.to_f > 0 && (apr.empty? == false)
+def invalid_apr?(apr)
+  apr.to_f <= 0 || apr.empty?
 end
 
 # validate loan duration
-def valid_duration?(duration)
-  duration.to_i > 0 && (duration.empty? == false)
+def invalid_duration?(duration)
+  duration.to_i <= 0 || duration.empty?
 end
 
-loop do
-  prompt 'enter amount, must be positive'
+# validate answer to do calculation (y/n)
+def invalid_answer?(answer)
+  answer.downcase != 'y' && answer.downcase != 'n'
+end
+
+# clear screen
+def clear_screen
+  system 'clear'
+end
+
+loop do # main loop
   amount = ''
   loop do
+    prompt 'enter valid amount, must be positive'
     amount = Kernel.gets.chomp
-    if valid_amount?(amount) == false
-      prompt 'Please enter valid amount'
-    else
-      break
-    end
+    break unless invalid_amount?(amount)
   end
-
-  prompt("enter apr, for example type '5' for 5 %")
+  
   apr = ''
   loop do
+    prompt("enter valid apr, for example type '5' for 5 %")
     apr = Kernel.gets.chomp
-    if valid_apr?(apr) == false
-      prompt 'Please enter valid apr'
-    else
-      break
-      end
+    break unless invalid_apr?(apr)
   end
 
-  prompt 'enter duration in years'
   duration = ''
   loop do
+    prompt("enter valid duration in years")
     duration = Kernel.gets.chomp
-    if valid_duration?(duration) == false
-      prompt('Please enter valid duration')
-    else
-      break
-    end
+    break unless invalid_duration?(duration)
   end
-  # calculate monthly rate
   yearly_rate =  apr.to_f / 100
   monthly_rate = yearly_rate / 12
-  # convert number of months and amount to proper formats
   months = duration.to_i * 12
   amount = amount.to_f
-	# Formula to be used - P = L[c(1 + c)n]/[(1 + c)n - 1]
-  # L dollars, n months, montly interest rate of c
-	prompt "yearly_rate: #{yearly_rate}"
+  clear_screen()
+  prompt "yearly_rate: #{yearly_rate}"
   prompt "monthly_rate: #{monthly_rate}"
   prompt "months: #{months}"
   prompt "amount: #{amount}"
 
   montly_payment = amount * ((monthly_rate * (1 + monthly_rate)**months) / (((1 + monthly_rate)**months) - 1))
   prompt "montly_payment: #{'%.02f' % montly_payment}"
-  prompt 'Do you want to do another calculation? Enter Y or N'
-  answer = Kernel.gets.chomp
-  break unless answer.casecmp('y').zero?
-end
+  answer = ''
+  loop do
+    prompt 'Do you want to do another calculation? Enter Y or N'
+    answer = Kernel.gets.chomp
+    break unless invalid_answer?(answer)
+  end
+  break unless answer.downcase == 'y'
+end # end main loop
