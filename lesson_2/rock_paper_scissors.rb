@@ -45,8 +45,8 @@ loop do # main loop
   computer_choice = VALID_CHOICES.sample
   prompt("You chose: #{choice}: Computer chose: #{computer_choice}")
   display_result(choice, computer_choice)
-  answer = ''
   
+  answer = ''
   loop do
     prompt("Do you want to play again? Enter Y or N")
     answer = Kernel.gets().chomp()
