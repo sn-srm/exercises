@@ -1,55 +1,56 @@
-VALID_CHOICES = ['rock', 'paper', 'scissors']
+# rock_paper_scissors game
 
+VALID_CHOICES = %w(rock paper scissors)
 def prompt(message)
-	Kernel.puts("=> #{message}")
+  Kernel.puts("=> #{message}")
 end
 
-def clear_screen()
-	system('clear')
+def clear_screen
+  system('clear')
+end
+
+def win?(first, second)
+  (first == 'rock' && second == 'scissors') ||
+    (first == 'paper' && second == 'rock') ||
+    (first == 'scissors' && second == 'paper')
 end
 
 def display_result(player, computer)
-	if (player=='rock' && computer == 'scissors') ||
-			(player=='paper' && computer == 'rock') ||
-			(player=='scissors' && computer == 'paper') 
-		prompt ("You won!")
-	elsif (player=='rock' && computer == 'paper') ||
-				(player=='paper' && computer == 'scissors') ||
-				(player=='scissors' && computer == 'rock')
-		prompt ("Computer won!")
-	else
-		prompt("It's a tie!")
-	end		
+  if win?(player, computer)
+    prompt "You won!"
+  elsif win?(computer, player)
+    prompt "Computer won!"
+  else
+    prompt "It's a tie!"
+  end
 end
+
 def valid_answer?(answer)
-	answer.downcase == 'y' || answer.downcase == 'n'
-end	
+  answer.downcase == 'y' || answer.downcase == 'n'
+end
 
-
-
-loop do
-	clear_screen
-	choice = ''
-	loop do
-		prompt ("Choose one: #{VALID_CHOICES.join(', ')}")
-		choice = Kernel.gets().chomp()
-		if VALID_CHOICES.include?(choice)
-			break
-		else
-			prompt ("Not a valid choice")
-		end
-	end
-	computer_choice = VALID_CHOICES.sample
-
-	Kernel.puts ("You chose: #{choice}: Computer chose: #{computer_choice}")
-	display_result(choice, computer_choice)
-	answer = ''
-	loop do
-		prompt("Do you want to play again? Enter Y or N")
-		answer = Kernel.gets().chomp()
-		if valid_answer?(answer) 
-			break
-		end
-	end
-	break unless answer == 'y' 
+loop do # main loop
+  clear_screen
+  choice = ''
+  
+  loop do
+    prompt("Choose one: #{VALID_CHOICES.join(', ')}")
+    choice = Kernel.gets().chomp()
+    if VALID_CHOICES.include?(choice)
+      break
+    else
+      prompt("Not a valid choice")
+    end
+  end
+  computer_choice = VALID_CHOICES.sample
+  prompt("You chose: #{choice}: Computer chose: #{computer_choice}")
+  display_result(choice, computer_choice)
+  answer = ''
+  
+  loop do
+    prompt("Do you want to play again? Enter Y or N")
+    answer = Kernel.gets().chomp()
+    break if valid_answer?(answer)
+  end
+  break unless answer == 'y'
 end
