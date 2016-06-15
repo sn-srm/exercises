@@ -3,11 +3,11 @@
 PLAYER_PIECE = 'X'.freeze
 COMPUTER_PIECE = 'O'.freeze
 EMPTY_PIECE = ' '.freeze
-WINNING_PAIRS = [[1, 2, 3], 
-                 [4, 5, 6], 
-                 [7, 8, 9], 
-                 [1, 4, 7], 
-                 [2, 5, 8], 
+WINNING_PAIRS = [[1, 2, 3],
+                 [4, 5, 6],
+                 [7, 8, 9],
+                 [1, 4, 7],
+                 [2, 5, 8],
                  [3, 6, 9],
                  [1, 5, 9],
                  [3, 5, 7]
@@ -38,14 +38,14 @@ def joinor(arr, delimiter = ', ', word = 'or')
   arr.join(delimiter)
 end
 
-def init_board # initialize board
+def init_board
   board = {}
   (1..9).each { |number| board[number] = EMPTY_PIECE }
   board
 end
 
 def empty_squares(board)
-  board.select { |k, v| v == EMPTY_PIECE }.keys
+  board.select { |_k, v| v == EMPTY_PIECE }.keys
 end
 
 def get_user_choice(board)
@@ -65,57 +65,29 @@ end
 def get_computer_choice(board)
   prompt "Computer's turn............"
   sleep(1.0)
-  if favorable_box?(board)
-    computer_choice = detect_favorable_box(board)
-    prompt("favorable_box")
-  elsif risky_box?(board)
-    computer_choice = detect_risky_box(board)
-  elsif empty_squares(board).include?(5)
-    computer_choice = 5
-  else
-    computer_choice = empty_squares(board).sample
-  end
+  computer_choice = if favorable_box?(board, COMPUTER_PIECE)
+                      detect_favorable_box(board, COMPUTER_PIECE)
+                    elsif favorable_box?(board, PLAYER_PIECE)
+                      detect_favorable_box(board, PLAYER_PIECE)
+                    elsif empty_squares(board).include?(5)
+                      5
+                    else
+                      empty_squares(board).sample
+                    end
   board[computer_choice] = COMPUTER_PIECE
 end
 
-def risky_box?(board)
-  !!detect_risky_box(board)
+def favorable_box?(board, marker)
+  !!detect_favorable_box(board, marker)
 end
 
-def detect_risky_box(board)
+def detect_favorable_box(board, marker)
   WINNING_PAIRS.each do |line|
-    if board[line[0]] == PLAYER_PIECE && board[line[1]] == PLAYER_PIECE &&
-       board[line[2]] == EMPTY_PIECE
-      return line[2]
-    elsif board[line[0]] == PLAYER_PIECE && board[line[1]] == EMPTY_PIECE &&
-          board[line[2]] == PLAYER_PIECE
-      return line[1]
-    elsif board[line[0]] == EMPTY_PIECE && board[line[1]] == PLAYER_PIECE &&
-          board[line[2]] == PLAYER_PIECE
-      return line[0]
+    if board.values_at(*line).count(marker) == 2
+      return board.select { |k, v| line.include?(k) && v == EMPTY_PIECE }.keys.first
     end
   end
-  return
-end
-
-def favorable_box?(board)
-  !!detect_favorable_box(board)
-end
-
-def detect_favorable_box(board)
-  WINNING_PAIRS.each do |line|
-    if board[line[0]] == COMPUTER_PIECE && board[line[1]] == COMPUTER_PIECE &&
-       board[line[2]] == EMPTY_PIECE
-      return line[2]
-    elsif board[line[0]] == COMPUTER_PIECE && board[line[1]] == EMPTY_PIECE &&
-          board[line[2]] == COMPUTER_PIECE
-      return line[1]
-    elsif board[line[0]] == EMPTY_PIECE && board[line[1]] == COMPUTER_PIECE &&
-          board[line[2]] == COMPUTER_PIECE
-      return line[0]
-    end
-  end
-  return
+  nil
 end
 
 def round_winner_found?(board)
@@ -124,15 +96,13 @@ end
 
 def detect_round_winner(board)
   WINNING_PAIRS.each do |line|
-    if board[line[0]] == PLAYER_PIECE && board[line[1]] == PLAYER_PIECE &&
-       board[line[2]] == PLAYER_PIECE
+    if board.values_at(*line).count(PLAYER_PIECE) == 3
       return "player"
-    elsif board[line[0]] == COMPUTER_PIECE && board[line[1]] == COMPUTER_PIECE &&
-          board[line[2]] == COMPUTER_PIECE
+    elsif board.values_at(*line).count(COMPUTER_PIECE) == 3
       return "computer"
     end
   end
-  return
+  nil
 end
 
 def full_board?(board)
@@ -178,12 +148,22 @@ def detect_game_winner(game_score)
   elsif game_score['tie'] == 4 && game_score['player'] == 1
     'You won the game'
   elsif game_score['tie'] == 4 && game_score['computer'] == 1
-    'computer won the game' 
-  end 
+    'computer won the game'
+  end
+end
+
+def play_again?
+  answer = ''
+  loop do
+    prompt 'Do you want to play another game? Enter (Y/N)'
+    answer = gets.chomp
+    break if answer.downcase == 'n' || answer.downcase == 'y'
+  end
+  answer.downcase == 'n'
 end
 
 loop do # main loop
-  game_score_state = { 'round' => 0, 'player' => 0, 'computer' => 0, 'tie' => 0}
+  game_score_state = { 'round' => 0, 'player' => 0, 'computer' => 0, 'tie' => 0 }
   5.times do |round|
     board = init_board
     next_mover = { "mover" => 0 }
@@ -214,12 +194,5 @@ loop do # main loop
     end
     game_score_state['round'] += 1
   end
-
-  answer = ''
-  loop do
-    prompt 'Do you want to play another game? Enter (Y/N)'
-    answer = gets.chomp
-    break if answer.downcase == 'n' || answer == 'y'
-  end
-  break if answer.downcase == 'n'
+  break if play_again?
 end
