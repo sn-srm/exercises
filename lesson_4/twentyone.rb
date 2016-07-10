@@ -21,7 +21,7 @@ end
 
 def show_game_state(game_state)
   puts "Round : #{game_state['round']} Player: #{game_state['player_score']} \
-    Dealer: #{game_state['dealer_score']} Tie: #{game_state['tie']} "
+  Dealer: #{game_state['dealer_score']} Tie: #{game_state['tie']} "
 end
 
 def initialize_deck
@@ -176,6 +176,12 @@ def declare_game_winner(game_state)
   end
 end
 
+def show_cards_update_score(player_cards, dealer_cards)
+  show_all_cards(player_cards, dealer_cards)
+  display_result(player_cards, dealer_cards)
+  pause
+end
+
 loop do # main loop
   prompt "Welcome to Twenty-One!"
   game_state = { 'round' => 0, 'player_score' => 0, \
@@ -197,10 +203,8 @@ loop do # main loop
     player_turn!(deck, player_cards)
 
     if busted?(player_cards)
-      show_all_cards(player_cards, dealer_cards)
-      display_result(player_cards, dealer_cards)
+      show_cards_update_score(player_cards, dealer_cards)
       game_state['dealer_score'] += 1
-      pause
       winner_found?(game_state) ? break : next
     else
       prompt "You stayed at #{total(player_cards)}"
@@ -212,10 +216,7 @@ loop do # main loop
 
     dealer_total = total(dealer_cards)
     if busted?(dealer_cards)
-      # prompt "Dealer total is now: #{dealer_total}"
-      show_all_cards(player_cards, dealer_cards)
-      display_result(player_cards, dealer_cards)
-      pause
+      show_cards_update_score(player_cards, dealer_cards)
       game_state['player_score'] += 1
       winner_found?(game_state) ? break : next
     else
