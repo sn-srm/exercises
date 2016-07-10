@@ -1,5 +1,5 @@
 # Twenty One
-SUITS = ["\u2665", "\u2663","\u2660", "\u2666"]
+SUITS = ["\u2665", "\u2663", "\u2660", "\u2666"].freeze
 VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'].freeze
 
 def prompt(msg)
@@ -13,14 +13,15 @@ end
 
 def show_cards(cards)
   temp_arr = []
-  cards.each do|card|
+  cards.each do |card|
     temp_arr << card[0].encode('utf-8') + card[1]
   end
   temp_arr.join(', ')
 end
 
 def show_game_state(game_state)
-  puts "Round : #{game_state['round']} Player: #{game_state['player_score']} Dealer: #{game_state['dealer_score']} Tie: #{game_state['tie']} "
+  puts "Round : #{game_state['round']} Player: #{game_state['player_score']} \
+    Dealer: #{game_state['dealer_score']} Tie: #{game_state['tie']} "
 end
 
 def initialize_deck
@@ -74,14 +75,10 @@ end
 
 def update_score(result, game_state)
   case result
-  when :player_busted
+  when :player_busted, :dealer
     game_state['dealer_score'] += 1
-  when :dealer_busted
+  when :dealer_busted, :player
     game_state['player_score'] += 1
-  when :player
-    game_state['player_score'] += 1
-  when :dealer
-    game_state['dealer_score'] += 1
   when :tie
     game_state['tie'] += 1
   end
@@ -113,7 +110,8 @@ end
 
 def show_initial_cards(player_cards, dealer_cards)
   prompt "Dealer has: #{dealer_cards[0][0]}#{dealer_cards[0][1]} and ?"
-  prompt "You have: #{player_cards[0][0]}#{player_cards[0][1]} and #{player_cards[1][0]}#{player_cards[1][1]} for a total of #{total(player_cards)}."
+  prompt "You have: #{player_cards[0][0]}#{player_cards[0][1]}" \
+  " and #{player_cards[1][0]}#{player_cards[1][1]} for a total of #{total(player_cards)}."
 end
 
 def player_turn!(deck, player_cards)
@@ -159,8 +157,10 @@ end
 
 def show_all_cards(player_cards, dealer_cards)
   puts "=============="
-  prompt "Dealer has #{show_cards(dealer_cards)}, for a total of: #{total(dealer_cards)}"
-  prompt "Player has #{show_cards(player_cards)}, for a total of: #{total(player_cards)}"
+  prompt "Dealer has #{show_cards(dealer_cards)}, for a total of: \
+    #{total(dealer_cards)}"
+  prompt "Player has #{show_cards(player_cards)}, \
+    for a total of: #{total(player_cards)}"
   puts "=============="
 end
 
@@ -178,7 +178,8 @@ end
 
 loop do # main loop
   prompt "Welcome to Twenty-One!"
-  game_state = { 'round' => 0, 'player_score' => 0, 'dealer_score' => 0, 'tie' => 0 }
+  game_state = { 'round' => 0, 'player_score' => 0, \
+                 'dealer_score' => 0, 'tie' => 0 }
   loop do
     system('clear')
     game_state['round'] += 1
