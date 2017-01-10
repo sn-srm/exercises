@@ -1,13 +1,15 @@
 require 'pry'
 
 module Rules
-  VALUES = %w[rock paper scissors lizard spock]
+  VALUES = %w[rock paper scissors lizard spock].freeze
   SHORTCUTS = {'r' => 'rock', 'p' => 'paper', 's' => 'scissors', 'l' => 'lizard', 'c' => 'spock'}
-  WINNING_RULES = {'rock' => ['scissors'],  
-                   'paper' => ['rock', 'spock'], 
-                   'scissors' => ['paper', 'lizard'],
-                   'lizard' => ['spock', 'paper'], 
-                   'spock' => ['scissors', 'rock']}
+  WINNING_RULES = {'rock' => %w(scissors),  
+                   'paper' => %w(rock spock), 
+                   'scissors' => %w(paper lizard),
+                   'lizard' => %w(spock paper), 
+                   'spock' => %w(scissors rock)
+    
+  }
   
 end
 
@@ -30,27 +32,26 @@ module Display
   end 
 end
 
-class Player
+class Player  #player class
   include Rules
   attr_accessor :move, :name, :score, :history
-  
-  def initialize()
+  def initialize
     @name = name
     @history = create_history
     @score = 0
   end
 
-  def create_history 
+  def create_history
     hsh = {}
-    VALUES.each do|move|
-      hsh[move] = {:win => 0, :loss =>0, :tie =>0}
+    VALUES.each do |move|
+      # hsh[move] = { :win => 0, :loss =>0, :tie =>0 }
+      hsh[move] = { win: 0, loss: 0, tie: 0 }
     end
     hsh
   end
-
 end
 
-class Human < Player
+class Human < Player #Class Human
   
   def detect_move
     user_choice = ''
@@ -83,12 +84,11 @@ class Computer < Player
     
     def inherited(child_name)
       @types << child_name
-    end  
+    end
   end
-
 end 
 
-class R2D2 < Computer #R2D2 only chooses one move per game
+class R2D2 < Computer # R2D2 only chooses one move per game
   @only_move
   def initialize
     super()
@@ -101,7 +101,7 @@ class R2D2 < Computer #R2D2 only chooses one move per game
   end
 
   def name
-    "R2D2"
+    'R2D2'
   end
 end
 
@@ -127,41 +127,30 @@ class Hal < Computer # Hal has a tendency to choose one random move more than ot
 end
 
 class General < Computer
-    
-   
   def detect_move
     choice = get_weight_adjusted_moves.sample
     @move = choice
   end
 
   def name
-    "General"
+    'Apple'
   end
     
   def get_move_weights()
-  
     total_losses = get_total_losses
-
     weights = {}
-  
     VALUES.each do |move|
-      if history[move][:loss] > 0
-        if (history[move][:loss] / total_losses)  > 0.6
-          weights[move] = 1
-        else
-          weights[move] = 2
-        end    
+      if histroy[move][:loss] > 0 && history[move][:loss] / total_losses > 0.6
+        weights[move] = 1
       else
-          weights[move] = 2
-      end
+        weights[move] = 2
+      end 
     end
-    
     weights
-
   end
 
   def get_weight_adjusted_moves
-    weights = get_move_weights()
+    weights = get_move_weights
     adjusted_moves = []
     
     weights.each do |move,weight|
@@ -180,13 +169,11 @@ class General < Computer
     end
     total_losses
   end
-
 end
 
-class Engine
+class Engine  # Game runner
   include Rules
   include Display
-  
   attr_accessor :human, :computer, :round, :winner, :history
   
   def initialize
@@ -220,12 +207,12 @@ class Engine
     loser.history[loser.move][:loss] += 1
   end
   
-  def update_tie()
-    @winner = "none"
+  def update_tie
+    @winner = 'none'
     computer.history[computer.move][:tie] += 1
     human.history[human.move][:tie] += 1
   end
-  
+
   def increase_round
     @round += 1
   end
@@ -237,7 +224,13 @@ class Engine
     computer.detect_move
     puts "#{human.name} chose: #{human.move}"
     puts "#{computer.name} chose: #{computer.move}"
-  end  
+  end 
+
+  def display_results
+    display_score
+    pause_screen
+    clear_screen
+  end 
   
   def play
     until winner_found?
@@ -245,9 +238,7 @@ class Engine
       find_choices
       find_round_winner
       puts "#{winner} won this round!"
-      display_score
-      pause_screen
-      clear_screen
+      display_results
     end
     display_score
     puts "#{winner} won the game!"
