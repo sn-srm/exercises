@@ -272,4 +272,5 @@ while play_again == true
     break if %w(y n).include?(response.downcase)
   end
   play_again = false if response == 'n'
+  puts "Bye!!!!"
 end
