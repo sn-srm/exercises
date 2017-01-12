@@ -6,7 +6,7 @@ module Rules
                 's' => 'scissors',
                 'l' => 'lizard',
                 'c' => 'spock' }.freeze
-  WINNING_RULES = { 'rock' => %w(scissors),
+  WINNING_RULES = { 'rock' => %w(scissors lizard),
                     'paper' => %w(rock spock),
                     'scissors' => %w(paper lizard),
                     'lizard' => %w(spock paper),
@@ -18,6 +18,11 @@ end
 module Display
   def display_round
     puts "round #{round}............"
+  end
+
+  def display_choices
+    puts "#{human.name} chose: #{human.move}"
+    puts "#{computer.name} chose: #{computer.move}"
   end
 
   def display_score
@@ -65,12 +70,11 @@ class Human < Player
   def detect_move
     user_choice = ''
     loop do
-      # puts "Enter one of these: #{VALUES.join(', ')}"
       print 'Enter '
       SHORTCUTS.each do |k, v|
         print "(#{k}) for #{v}, "
       end
-      user_choice = gets.chomp
+      user_choice = gets.chomp.downcase
       break if SHORTCUTS.keys.include?(user_choice)
     end
     puts '' # break the line
@@ -208,17 +212,27 @@ class Engine
 
   def find_round_winner
     if win_round?(human, computer)
+      update_winner(human)
+      increase_score(human)
       update_winner_history(human, computer)
     elsif win_round?(computer, human)
+      update_winner(human)
+      increase_score(human)
       update_winner_history(computer, human)
     else
       update_tie
     end
   end
 
-  def update_winner_history(winner, loser)
-    @winner = winner.name
+  def update_winner(player)
+    @winner = player.name
+  end
+
+  def increase_score(winner)
     winner.score += 1
+  end
+
+  def update_winner_history(winner, loser)
     winner.history[winner.move][:win] += 1
     loser.history[loser.move][:loss] += 1
   end
@@ -238,8 +252,7 @@ class Engine
     display_score
     human.detect_move
     computer.detect_move
-    puts "#{human.name} chose: #{human.move}"
-    puts "#{computer.name} chose: #{computer.move}"
+    display_choices
   end
 
   def display_results
@@ -268,9 +281,9 @@ while play_again == true
   response = ''
   loop do
     puts "Do you want to play again? Press 'y' for yes and 'n' for no..."
-    response = gets.chomp
-    break if %w(y n).include?(response.downcase)
+    response = gets.chomp.downcase
+    break if %w(y n).include?(response)
   end
   play_again = false if response == 'n'
-  puts "Bye!!!!"
 end
+puts 'Bye!!!!'
