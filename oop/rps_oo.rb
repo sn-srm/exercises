@@ -5,13 +5,15 @@ module Rules
                 'p' => 'paper',
                 's' => 'scissors',
                 'l' => 'lizard',
-                'c' => 'spock' }.freeze
+                'c' => 'spock'
+              }.freeze
+
   WINNING_RULES = { 'rock' => %w(scissors lizard),
                     'paper' => %w(rock spock),
                     'scissors' => %w(paper lizard),
                     'lizard' => %w(spock paper),
                     'spock' => %w(scissors rock)
-  }.freeze
+                  }.freeze
 end
 
 # Functions used to display game state
@@ -96,7 +98,6 @@ end
 
 # R2D2 only chooses one move for an entire game
 class R2D2 < Computer
-  @only_move
   def initialize
     super()
     @only_move = VALUES.sample
@@ -104,15 +105,12 @@ class R2D2 < Computer
   end
 
   def detect_move
-    choice = @only_move
-    @move = choice
+    @move = @only_move
   end
 end
 
 # Hal puts more weight on one random move for an entire game
 class Hal < Computer
-  @adjusted_moves
-
   def initialize
     super()
     @adjusted_moves = create_adjusted_moves
@@ -139,8 +137,7 @@ class BB8 < Computer
   end
 
   def detect_move
-    choice = weight_adjust_moves.sample
-    @move = choice
+    @move = weight_adjust_moves.sample
   end
 
   def calculate_move_weights
