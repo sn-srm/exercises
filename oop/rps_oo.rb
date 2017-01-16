@@ -69,7 +69,7 @@ class Human < Player
     @name = 'User'
   end
 
-  def detect_move
+  def choose_move
     user_choice = ''
     loop do
       print 'Enter '
@@ -104,7 +104,7 @@ class R2D2 < Computer
     @name = 'R2D2'
   end
 
-  def detect_move
+  def choose_move
     @move = @only_move
   end
 end
@@ -124,7 +124,7 @@ class Hal < Computer
     choices
   end
 
-  def detect_move
+  def choose_move
     @move = @adjusted_moves.sample
   end
 end
@@ -136,7 +136,7 @@ class BB8 < Computer
     @name = 'BB8'
   end
 
-  def detect_move
+  def choose_move
     @move = weight_adjust_moves.sample
   end
 
@@ -182,7 +182,7 @@ class General < Computer
     @name = 'Apple'
   end
 
-  def detect_move
+  def choose_move
     @move = VALUES.sample
   end
 end
@@ -209,15 +209,40 @@ class Engine
 
   def find_round_winner
     if win_round?(human, computer)
-      update_winner(human)
-      increase_score(human)
-      update_winner_history(human, computer)
+      :human
     elsif win_round?(computer, human)
-      update_winner(human)
-      increase_score(human)
-      update_winner_history(computer, human)
+      :computer
     else
-      update_tie
+      :none
+    end
+  end
+
+  def human_won
+    update_winner(human)
+    increase_score(human)
+    update_winner_history(human, computer)
+  end
+
+  def computer_won
+    update_winner(computer)
+    increase_score(computer)
+    update_winner_history(computer, human)
+  end
+
+  def game_tied
+    @winner = 'none'
+    computer.history[computer.move][:tie] += 1
+    human.history[human.move][:tie] += 1
+  end
+
+  def round_over
+    case find_round_winner
+    when :human
+      human_won
+    when :computer
+      computer_won
+    when :none
+      game_tied
     end
   end
 
@@ -234,12 +259,6 @@ class Engine
     loser.history[loser.move][:loss] += 1
   end
 
-  def update_tie
-    @winner = 'none'
-    computer.history[computer.move][:tie] += 1
-    human.history[human.move][:tie] += 1
-  end
-
   def increase_round
     @round += 1
   end
@@ -247,8 +266,8 @@ class Engine
   def find_choices
     display_round
     display_score
-    human.detect_move
-    computer.detect_move
+    human.choose_move
+    computer.choose_move
     display_choices
   end
 
@@ -262,7 +281,7 @@ class Engine
     until winner_found?
       increase_round
       find_choices
-      find_round_winner
+      round_over
       puts "#{winner} won this round!"
       display_results
     end
